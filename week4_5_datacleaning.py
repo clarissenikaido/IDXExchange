@@ -53,7 +53,7 @@ check_datetime_types(sold_df, cols_to_reformat)
 def missing_data_summary(df):
     missing_summary = df.isnull().sum().to_frame(name='MissingCount')
     missing_summary['MissingPercentage'] = (missing_summary['MissingCount'] / len(df)) * 100
-    return missing_summary['MissingPercentage'][missing_summary['MissingPercentage'] >= 70]
+    return missing_summary['MissingPercentage'][missing_summary['MissingPercentage'] >= 90]
 
 # %%
 print("Listings DataFrame Missing Data Summary:")
@@ -134,11 +134,64 @@ def flag_geographic_errors(df, lat_col='Latitude', lon_col='Longitude'):
     
     return df
 
-# Usage
 print("\nListings DataFrame shape after flagging geographic errors:", listings_df.shape)
 listings_df = flag_geographic_errors(listings_df)
 print("\nSold DataFrame shape after flagging geographic errors:", sold_df.shape)
 sold_df = flag_geographic_errors(sold_df)
+
+# Step 7: Flag date inconsistencies: CloseDate before PurchaseContractDate, PurchaseContractDate before ListingContractDate
+
+def flag_close_before_purchase(df):
+    if {'CloseDate', 'PurchaseContractDate'}.issubset(df.columns):
+        df['Flag_CloseDate_Before_PurchaseContractDate'] = (
+            df['CloseDate'] - df['PurchaseContractDate'] < pd.Timedelta(0)
+        )
+    else:
+        df['Flag_CloseDate_Before_PurchaseContractDate'] = False
+    return df
+
+listings_df = flag_close_before_purchase(listings_df)
+sold_df = flag_close_before_purchase(sold_df)
+
+print("Listings rows with CloseDate before PurchaseContractDate:",
+      listings_df['Flag_CloseDate_Before_PurchaseContractDate'].sum())
+print("Sold rows with CloseDate before PurchaseContractDate:",
+      sold_df['Flag_CloseDate_Before_PurchaseContractDate'].sum())
+
+def flag_purchase_before_listing(df):
+    if {'PurchaseContractDate', 'ListingContractDate'}.issubset(df.columns):
+        df['Flag_PurchaseDate_Before_ListingContractDate'] = (
+            df['PurchaseContractDate'] - df['ListingContractDate'] < pd.Timedelta(0)
+        )
+    else:
+        df['Flag_PurchaseDate_Before_ListingContractDate'] = False
+    return df
+
+listings_df = flag_purchase_before_listing(listings_df)
+sold_df = flag_purchase_before_listing(sold_df)
+
+print("Listings rows with PurchaseContractDate before ListingContractDate:",
+      listings_df['Flag_PurchaseDate_Before_ListingContractDate'].sum())
+print("Sold rows with PurchaseContractDate before ListingContractDate:",
+      sold_df['Flag_PurchaseDate_Before_ListingContractDate'].sum())
+
+# Drop rows where both date inconsistencies occur, as these are likely data entry errors that cannot be resolved
+listings_df = listings_df[
+    ~(
+        listings_df['Flag_PurchaseDate_Before_ListingContractDate'] &
+        listings_df['Flag_CloseDate_Before_PurchaseContractDate']
+    )
+]
+
+sold_df = sold_df[
+    ~(
+        sold_df['Flag_PurchaseDate_Before_ListingContractDate'] &
+        sold_df['Flag_CloseDate_Before_PurchaseContractDate']
+    )
+]
+
+print("Listings rows after dropping inconsistent dates:", len(listings_df))
+print("Sold rows after dropping inconsistent dates:", len(sold_df))
 
 # %%
 ## Combine ListAgentFirstName and ListAgentLastName into a single ListAgent column

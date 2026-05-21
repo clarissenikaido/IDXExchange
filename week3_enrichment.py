@@ -12,8 +12,8 @@ mortgage['year_month'] = mortgage['date'].dt.to_period('M')
 mortgage_monthly = (mortgage.groupby('year_month')['rate_30yr_fixed'] .mean().reset_index())
 
 # Loading in clean datasets 
-sold = pd.read_csv("sold_listings_res_concated.csv", low_memory=False)
-listings = pd.read_csv("listings_res_concated.csv", low_memory=False)
+sold = pd.read_csv("data/Cleaned_Sold_Data.csv", low_memory=False)
+listings = pd.read_csv("data/Cleaned_Listings_Data.csv", low_memory=False)
 
 # Step 3 – Create a matching year_month key on the MLS datasets
 # Sold dataset — key off CloseDate
@@ -40,6 +40,6 @@ sold_with_rates[
 )
 
 # Converting to CSV Files
-listings_with_rates.to_csv("listing_enriched.csv", index=False)
-sold_with_rates.to_csv("sold_enriched.csv", index=False)
+listings_with_rates.to_csv("data/listing_enriched.csv", index=False)
+sold_with_rates.to_csv("data/sold_enriched.csv", index=False)
 print("CSVs Saved")
