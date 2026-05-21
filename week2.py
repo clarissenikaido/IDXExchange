@@ -8,14 +8,15 @@ import pandas as pd
 years = [2024, 2025]
 months = [f"{m:02d}" for m in range(1, 13)] # Creates ['01', '02', ..., '12']
 listings_df = {
-    f"{year}{month}": pd.read_csv(f"listing_data/CRMLSListing{year}{month}.csv")
+    f"{year}{month}": pd.read_csv(f"data/CRMLSListing{year}{month}.csv")
     for year in years
     for month in months
 }
-listings_df["202601"] = pd.read_csv("listing_data/CRMLSListing202601.csv")
+listings_df["202601"] = pd.read_csv("data/CRMLSListing202601.csv")
 ## Using centralized datasets provided
-listings_df["202602"] = pd.read_csv("listing_data/CRMLSListing202602.csv")
-listings_df["202603"] = pd.read_csv("listing_data/CRMLSListing202603.csv")
+listings_df["202602"] = pd.read_csv("data/CRMLSListing202602.csv")
+listings_df["202603"] = pd.read_csv("data/CRMLSListing202603.csv")
+listings_df["202604"] = pd.read_csv("data/CRMLSListing202604.csv")
 
 ## Validating number of rows in each month 
 listing_total = 0
@@ -28,14 +29,15 @@ print(listing_total)
 years = [2024, 2025]
 months = [f"{m:02d}" for m in range(1, 13)] # Creates ['01', '02', ..., '12']
 sold_df = {
-    f"{year}{month}": pd.read_csv(f"sold_data/CRMLSSold{year}{month}.csv")
+    f"{year}{month}": pd.read_csv(f"data/CRMLSSold{year}{month}.csv")
     for year in years
     for month in months
 }
-sold_df["202601"] = pd.read_csv("sold_data/CRMLSSold202601.csv")
+sold_df["202601"] = pd.read_csv("data/CRMLSSold202601.csv")
 ## Using centralized datasets provided
-sold_df["202602"] = pd.read_csv("sold_data/CRMLSSold202602.csv")
-sold_df["202603"] = pd.read_csv("sold_data/CRMLSSold202603.csv")
+sold_df["202602"] = pd.read_csv("data/CRMLSSold202602.csv")
+sold_df["202603"] = pd.read_csv("data/CRMLSSold202603.csv")
+sold_df["202604"] = pd.read_csv("data/CRMLSSold202604.csv")
 
 ## Validating number of sold properties
 sold_total = 0
@@ -113,13 +115,15 @@ cols_to_drop = listing_report[listing_report['Flag (>90% Missing)'] == True]['Co
 
 # Create the new cleaned dataframe by dropping the empty columns
 filtered_listings_df = listings_res_df.drop(columns=cols_to_drop)
-filtered_listings_df = listings_res_df.drop(columns=cols_to_drop)
+filtered_sold_df = sold_res_df.drop(columns=cols_to_drop)
 
 # 4. Save the new CSV
-filtered_listings_df.to_csv('Cleaned_Listings_Data.csv', index=False)
+filtered_listings_df.to_csv('data/Cleaned_Listings_Data.csv', index=False)
+filtered_sold_df.to_csv('data/Cleaned_Sold_Data.csv', index=False)
 
 print(f"\n✅ Success!")
 print(f"1. Summary generated for: {target_cols}")
 print(f"2. Dropped {len(cols_to_drop)} columns with >90% missing data.")
 print(f"3. Filtered dataset saved as: Cleaned_Listings_Data.csv")
+print(f"4. Filtered sold dataset saved as: Cleaned_Sold_Data.csv")
 
